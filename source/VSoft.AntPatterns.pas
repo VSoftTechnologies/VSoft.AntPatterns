@@ -369,6 +369,7 @@ begin
 
     if not IsRooted(normalPattern) then //cannot use TPath.IsPathRooted as it matched \xxx
       normalPattern := Combine(ExcludeTrailingPathDelimiter(FRootDirectory),normalPattern); //TPath.Combine fails
+    normalPattern := CompressRelativePath(FRootDirectory, normalPattern);
     firstWildcard := IndexOfAny(normalPattern, ['?', '*' ],1, Length(normalPattern));
 
     if firstWildcard = -1 then
