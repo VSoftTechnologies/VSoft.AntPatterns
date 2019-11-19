@@ -286,8 +286,8 @@ begin
   regExPattern := FAntPattern.ConvertAntToRegexString(antPattern);
   re := TRegEx.Create(regExPattern);
 
-  matchingValuesArry := matchingValues.Split([',']);
-  nonMatchingValuesArray := nonMatchingValues.Split([',']);
+  matchingValuesArry := AntSplit(matchingValues, [','], MaxInt, TAntStringSplitOptions.none);
+  nonMatchingValuesArray := AntSplit(nonMatchingValues, [','], MaxInt, TAntStringSplitOptions.none);
 
   for value in matchingValuesArry do
   begin

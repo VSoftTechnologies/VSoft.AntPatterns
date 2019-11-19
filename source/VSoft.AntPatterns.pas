@@ -3,7 +3,6 @@ unit VSoft.AntPatterns;
 interface
 
 uses
-  System.SysUtils,
   Generics.Collections;
 
 type
@@ -40,7 +39,7 @@ type
 		/// </summary>
 		/// <param name="antPattern"></param>
 		/// <returns>TArray of IFileSystemPattern</returns>
-    function Expand(antPattern : string) : TArray<IFileSystemPattern>;
+    function Expand(const antPattern : string) : TArray<IFileSystemPattern>;
     function ConvertAntToRegexString(const antPattern : string) : string;
   end;
 
@@ -64,7 +63,7 @@ type
 
     //IAntPattern
     function ConvertAntToRegexString(const antPattern : string) : string;
-    function Expand(antPattern : string) : TArray<IFileSystemPattern>;
+    function Expand(const antPattern : string) : TArray<IFileSystemPattern>;
   public
     constructor Create(const rootDirectory : string);
 
@@ -74,9 +73,14 @@ type
   /// Takes a path like 'c:\temp\foo\..\bar\test.txt' and
   ///  converts it to   'c:\temp\bar\test.txt'
   /// </summary>
-  ///  Only public for testing 
+  ///  Only public for testing
   function CompressRelativePath(const basePath : string; path : string) : string;
 
+
+//exposed only for testing, do not use directly.
+type
+  TAntStringSplitOptions = (None, ExcludeEmpty);
+function AntSplit(const value : string; const Separator: array of Char; Count: Integer;  Options: TAntStringSplitOptions): TArray<string>;
 
 
 implementation
@@ -85,6 +89,8 @@ uses
   System.Types,
   System.IOUtils,
   System.SyncObjs,
+  System.SysUtils,
+  System.StrUtils,
   System.RegularExpressions;
 var
   antPatternRegexCache : TDictionary<string,string>;
@@ -150,11 +156,119 @@ begin
   result := FFileMask;
 end;
 
+//Copied from XE7
+function StartsWith(const current : string; const Value: string; IgnoreCase: Boolean = false): Boolean;
+begin
+  if not IgnoreCase then
+    Result := System.SysUtils.StrLComp(PChar(current), PChar(Value), Length(Value)) = 0
+  else
+    Result := System.SysUtils.StrLIComp(PChar(current), PChar(Value), Length(Value)) = 0;
+end;
+
+function EndsWith(const theString : string; const Value: string; IgnoreCase: Boolean = true): Boolean;
+begin
+  if IgnoreCase then
+    Result := EndsText(Value, theString)
+  else
+    result := EndsStr(Value, theString);
+end;
+
+
+
+function IndexOfAny(const value : string; const AnyOf: array of Char; StartIndex, Count: Integer): Integer;
+var
+  I: Integer;
+  C: Char;
+  Max: Integer;
+begin
+  if (StartIndex + Count) >= Length(value) then
+    Max := Length(value)
+  else
+    Max := StartIndex + Count;
+
+  I := StartIndex;
+  while I < Max do
+  begin
+    for C in AnyOf do
+      if value[I] = C then
+        Exit(I);
+    Inc(I);
+  end;
+  Result := -1;
+end;
+
+function LastIndexOf(const theString : string; Value: Char; StartIndex, Count: Integer): Integer;
+var
+  I: Integer;
+  Min: Integer;
+begin
+  if StartIndex < Length(theString) then
+    I := StartIndex
+  else
+    I := Length(theString);
+  if (StartIndex - Count) < 0 then
+    Min := 1
+  else
+    Min := StartIndex - Count;
+  while I >= Min do
+  begin
+    if theString[I] = Value then
+      Exit(I);
+    Dec(I);
+  end;
+  Result := -1;
+end;
+
+
+
+
+
+function AntSplit(const value : string; const Separator: array of Char; Count: Integer;  Options: TAntStringSplitOptions): TArray<string>;
+const
+  DeltaGrow = 32;
+var
+  NextSeparator, LastIndex: Integer;
+  Total: Integer;
+  CurrentLength: Integer;
+  S: string;
+begin
+  Total := 0;
+  LastIndex := 1;
+  CurrentLength := 0;
+  NextSeparator := IndexOfAny(value, Separator, LastIndex, Length(value));
+  while (NextSeparator >= 0) and (Total < Count) do
+  begin
+    S := Copy(value, LastIndex, NextSeparator - LastIndex);
+    if (S <> '') or ((S = '') and (Options <> ExcludeEmpty)) then
+    begin
+      Inc(Total);
+      if CurrentLength < Total then
+      begin
+        CurrentLength := Total + DeltaGrow;
+        SetLength(Result, CurrentLength);
+      end;
+      Result[Total - 1] := S;
+    end;
+    LastIndex := NextSeparator + 1;
+    NextSeparator := IndexOfAny(value, Separator, LastIndex, Length(value));
+  end;
+
+  if (LastIndex < Length(value)) and (Total < Count) then
+  begin
+    Inc(Total);
+    SetLength(Result, Total);
+    Result[Total - 1] := Copy(value, LastIndex, Length(value));
+  end
+  else
+    SetLength(Result, Total);
+end;
+
+
 { TAntPattern }
 
 function TAntPattern.Combine(const root: string; pattern: string): string;
 begin
-  if pattern.StartsWith(PathDelim) then
+  if StartsWith(pattern, PathDelim) then
     Delete(pattern,1,1);
   result := IncludeTrailingPathDelimiter(FRootDirectory) + pattern;
 end;
@@ -166,7 +280,7 @@ begin
     if result <> '' then
       exit;
 
-    result := TRegEx.Escape(antPattern.Trim);
+    result := TRegEx.Escape(Trim(antPattern));
 
     // Make all path delimiters the same (to simplify following expressions)
     result := TRegEx.Replace(result, '(\\\\|/)', '/');
@@ -210,15 +324,15 @@ begin
     result := TRegEx.Replace(result, '\[\^\\\\\]', '[^\\/]');
 
     // * matches zero or more characters which are not a path delimiter
-    result := result.Replace('\*', '[^\\/]*');
+    result := StringReplace(result, '\*', '[^\\/]*', [rfReplaceAll]);
 
     // ? matches anything but a path delimiter
-    result := result.Replace('\?', '[^\\/]');
+    result := StringReplace(result, '\?', '[^\\/]', [rfReplaceAll]);
 
     // Semicolons become |-delimited OR groups
-    if result.Contains(';') then
+    if Pos(';', result) > 0 then
     begin
-      result := result.Replace(';', ')|(?:');
+      result := StringReplace(result, ';', ')|(?:', [rfReplaceAll]);
       result := '(?:' + result + ')';
     end;
 
@@ -234,14 +348,16 @@ begin
   FRootDirectory := NormalizeDirectorySeparators(rootDirectory);
 end;
 
-function TAntPattern.Expand(antPattern: string): TArray<IFileSystemPattern>;
+function TAntPattern.Expand(const antPattern: string): TArray<IFileSystemPattern>;
 var
+  normalPattern : string;
   firstWildcard : integer;
   directory     : string;
   mask          : string;
   pattern       : string;
   root         : string;
   newPattern    : IFileSystemPattern;
+  feck : string;
   regExPattern  : string;
   lastSepBeforeWildcard : integer;
   regEx : TRegEx;
@@ -249,16 +365,16 @@ var
 begin
   list := TList<IFileSystemPattern>.Create;
   try
-    antPattern := NormalizeDirectorySeparators(antPattern);
+    normalPattern := NormalizeDirectorySeparators(antPattern);
 
-    if not IsRooted(antPattern) then //cannot use TPath.IsPathRooted as it matched \xxx
-      antPattern := Combine(ExcludeTrailingPathDelimiter(FRootDirectory),antPattern); //TPath.Combine fails
-    firstWildcard := antPattern.IndexOfAny(['?', '*' ]);
+    if not IsRooted(normalPattern) then //cannot use TPath.IsPathRooted as it matched \xxx
+      normalPattern := Combine(ExcludeTrailingPathDelimiter(FRootDirectory),normalPattern); //TPath.Combine fails
+    firstWildcard := IndexOfAny(normalPattern, ['?', '*' ],1, Length(normalPattern));
 
     if firstWildcard = -1 then
     begin
-      directory := ExtractFilePath(antPattern);
-      mask := ExtractFileName(antPattern);
+      directory := ExtractFilePath(normalPattern);
+      mask := ExtractFileName(normalPattern);
       // This is for when 'S:\' is passed in. Default it to '*' wildcard
       if mask = '' then
         mask := '*';
@@ -267,10 +383,11 @@ begin
       exit;
     end;
 
-    lastSepBeforeWildcard := antPattern.LastIndexOf(PathDelim , firstWildcard);
+    lastSepBeforeWildcard := LastIndexOf(normalPattern, PathDelim , firstWildcard, firstWildcard + 1);
     // C:\Foo\Bar\Go?\**\*.txt
-    root := antPattern.Substring(0, lastSepBeforeWildcard + 1 );  // C:\Foo\Bar\
-    pattern := antPattern.Substring(lastSepBeforeWildcard + 1);   // Go?\**\*.txt
+    root := Copy(normalPattern, 1, lastSepBeforeWildcard );  // C:\Foo\Bar\
+    feck := root;
+    pattern := Copy(normalPattern, lastSepBeforeWildcard + 1, Length(normalPattern));   // Go?\**\*.txt
 
     if pattern = '' then // C:\Foo\bar\ == all files recursively in C:\Foo\bar\
       pattern := '**';
@@ -287,10 +404,10 @@ begin
         subPath : string;
       begin
         result := false;
-        if not path.StartsWith(root) then
+        if not StartsWith(path, root) then
           exit;
 
-        subPath := path.Substring(root.Length);
+        subPath := Copy(path,Length(root)+ 1);
 
         //-----------------------------------------------------------
         //this is a work around for an issue with TRegEx where it does not
@@ -346,7 +463,7 @@ var
 begin
   if not walker(path, true) then
   begin
-    files := [];
+    SetLength(files,0);
     try
       files := TDirectory.GetFiles(path,'*', TSearchOption.soTopDirectoryOnly);
     except
@@ -358,8 +475,7 @@ begin
       if walker(fileName, false) then
           break;
     end;
-    subs := [];
-
+    SetLength(subs,0);
     try
       subs := TDirectory.GetDirectories(path, '*', TSearchOption.soTopDirectoryOnly);   
     except
@@ -382,10 +498,10 @@ var
 begin
   if not TPath.IsPathRooted(path) then
     path := IncludeTrailingPathDelimiter(basePath) + path
-  else if not path.StartsWith(basePath) then
+  else if not StartsWith(path, basePath) then
     exit(path); //should probably except ?
     
-  segments := path.Split([PathDelim]);
+  segments := AntSplit(path, [PathDelim], MaxInt, None);
   stack := TStack<string>.Create;
   try
     for segment in segments do
@@ -408,7 +524,7 @@ begin
       else
         result := stack.Pop;
     end;
-    if path.EndsWith(PathDelim) then
+    if EndsWith(path, PathDelim) then
       result := IncludeTrailingPathDelimiter(result);
   finally
     stack.Free;
