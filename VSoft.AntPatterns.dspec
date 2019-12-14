@@ -1,71 +1,85 @@
-<?xml version="1.0" encoding="utf-8"?>
-<package specVersion="1.0">
-	<metadata minClientVersion="0.0.1">
-    <!-- basic meta data, requried -->
-    <id>VSoft.AntPatterns</id>
-    <version>0.0.1</version>
-    <description>Ant pattern to windows filepattern conversion</description>
-    <authors>Vincent Parrett</authors>
-    <!-- optional metadata -->
-    <projectUrl>https://github.com/VSoftTechnologies/VSoft.AntPatterns</projectUrl>
-    <!-- see https://spdx.org/licenses/ for license expressions
-      for multiple licenses, use a comma separated list
-      if you use a custom or proprietary license then include a license.txt file 
-    -->
-    <license>Apache-2.0</license>
-    <icon></icon>
-    <copyright>2019 Vincent Parrett and contributors</copyright>
-    <tags>AntPatterns Globbing </tags>
-    <isCommercial>false</isCommercial>
-  </metadata>
-    <!-- 
-      targetPlatforms define which compilers/platforms are supported by this package. 
-      these values are used to validate other parts of this file
-    -->
-  <targetPlatforms>
-    <!-- Regex introduced in XE2 -->
-    <targetPlatform compiler="XE3" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="XE3" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="XE4" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="XE5" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="XE6" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="XE7" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="XE8" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="10.0" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="10.1" platforms="Win32, Win64" template="Default" />
-    <targetPlatform compiler="10.2" platforms="Win32, Win64,LinuxIntel64" template="Default" />
-    <targetPlatform compiler="10.3" platforms="Win32, Win64,LinuxIntel64" template="Default" />        
-  </targetPlatforms>
-  <!-- 
-  Templates - provide a way of adding defaults for  target/platforms etc,
-
-  -->
-  <templates>
-    <template name="Default">
-      <!-- I'm assuming the spec file is in root folder of the repo. -->
-      <dependencies>
-      <!-- no dependencies -->
-      </dependencies>
-      <lib>
-        <!-- only distributing source -->       
-      </lib>        
-      <source>
-        <!-- note we are specifying flatten= true so there will be only 1 folder added to search path if we use the source -->
-        <file src=".\source\VSoft.AntPatterns.pas" target="src" exclude=".dcu;.dcp;.lib" flatten="true" />
-      </source>
-      <!-- non lib or src files -->
-      <files>
-      </files>
-        <file src=".\license.txt" target="." />
-      <runtime>
-        <!-- no runtime packages  for this lib -->
-      </runtime> 
-      <design>
-        <!-- no designtime packages  for this lib -->     
-      </design>
-      <searchPaths>
-        <searchPath binaries="true" path="src"  />
-      </searchPaths>     
-    </template>
-  </templates>
-</package>
+{
+  "metadata": {
+    "id": "VSoft.AntPattterns",
+    "version": "0.0.1",
+    "description": "AntPattterns to file mask library",
+    "authors": "Vincent Parrett",
+    "projectUrl": "https://github.com/VSoftTechnologies/VSoft.AntPatterns",
+    "license": "Apache-2.0",
+    "copyright": "Vincent Parrett and contributors",
+    "tags": "ant patterns"
+  },
+  "targetPlatforms": [
+    {
+      "compiler": "XE2",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "XE3",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "XE4",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "XE5",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "XE6",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "XE7",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "XE8",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "10.0",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "10.1",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "10.2",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    },
+    {
+      "compiler": "10.3",
+      "platforms": "Win32, Win64",
+      "template": "default"
+    }
+  ],
+  "templates": [
+    {
+      "name": "default",
+      "source": [
+        {
+          "src": "source\\VSoft.AntPatterns.pas",
+          "dest": "src"
+        }
+      ],
+      "searchPaths": [
+        {
+          "path": "src"
+        }
+      ]
+    }
+  ]
+}
