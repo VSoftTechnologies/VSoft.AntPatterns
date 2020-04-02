@@ -142,7 +142,7 @@ var
 
 constructor TFileSystemPattern.Create(const directory, fileMask: string);
 begin
-  FDirectory := directory;
+  FDirectory := IncludeTrailingPathDelimiter(Trim(ExcludeTrailingPathDelimiter(directory)));
   FFileMask  := fileMask;
 end;
 
@@ -379,7 +379,7 @@ begin
       // This is for when 'S:\' is passed in. Default it to '*' wildcard
       if mask = '' then
         mask := '*';
-      newPattern := TFileSystemPattern.Create(IncludeTrailingPathDelimiter(directory), mask);
+      newPattern := TFileSystemPattern.Create(directory, mask);
       list.Add(newPattern);
       exit;
     end;
@@ -423,11 +423,11 @@ begin
         begin
           if isDirectory then
           begin
-            newPattern := TFileSystemPattern.Create(IncludeTrailingPathDelimiter(path), '*');
+            newPattern := TFileSystemPattern.Create(path, '*');
             list.Add(newPattern);
             exit(true);
           end;
-          newPattern := TFileSystemPattern.Create(IncludeTrailingPathDelimiter(ExtractFilePath(path)), ExtractFileName(path));
+          newPattern := TFileSystemPattern.Create(ExtractFilePath(path), ExtractFileName(path));
           list.Add(newPattern);
         end;
 
