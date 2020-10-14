@@ -187,7 +187,7 @@ begin
     Max := StartIndex + Count;
 
   I := StartIndex;
-  while I < Max do
+  while I <= Max do
   begin
     for C in AnyOf do
       if value[I] = C then
@@ -371,14 +371,13 @@ begin
       normalPattern := Combine(ExcludeTrailingPathDelimiter(FRootDirectory),normalPattern); //TPath.Combine fails
     normalPattern := CompressRelativePath(FRootDirectory, normalPattern);
     firstWildcard := IndexOfAny(normalPattern, ['?', '*' ],1, Length(normalPattern));
-
+    mask := ExtractFileName(normalPattern);
+      // This is for when 'S:\' is passed in. Default it to '*' wildcard
+    if mask = '' then
+      mask := '*';
     if firstWildcard = -1 then
     begin
       directory := ExtractFilePath(normalPattern);
-      mask := ExtractFileName(normalPattern);
-      // This is for when 'S:\' is passed in. Default it to '*' wildcard
-      if mask = '' then
-        mask := '*';
       newPattern := TFileSystemPattern.Create(directory, mask);
       list.Add(newPattern);
       exit;
@@ -427,8 +426,9 @@ begin
             list.Add(newPattern);
             exit(true);
           end;
-          newPattern := TFileSystemPattern.Create(ExtractFilePath(path), ExtractFileName(path));
+          newPattern := TFileSystemPattern.Create(ExtractFilePath(path), mask);// ExtractFileName(path));
           list.Add(newPattern);
+          result := true;
         end;
 
       end);

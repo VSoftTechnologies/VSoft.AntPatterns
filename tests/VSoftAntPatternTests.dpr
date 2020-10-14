@@ -15,7 +15,8 @@ uses
   DUnitX.TestFramework,
   VSoft.AntPatterns in '..\source\VSoft.AntPatterns.pas',
   VSoft.AntPatterns2 in 'VSoft.AntPatterns2.pas',
-  VSoftAntPatternTest in 'VSoftAntPatternTest.pas';
+  VSoftAntPatternTest in 'VSoftAntPatternTest.pas',
+  VSoftAntPatternTestSplit in 'VSoftAntPatternTestSplit.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
