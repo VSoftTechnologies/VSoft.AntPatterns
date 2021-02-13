@@ -1,7 +1,7 @@
 {
   "metadata": {
     "id": "VSoft.AntPatterns",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "description": "AntPatterns to file mask library",
     "authors": "Vincent Parrett",
     "projectUrl": "https://github.com/VSoftTechnologies/VSoft.AntPatterns",
@@ -78,12 +78,26 @@
         {
           "src": "source\\VSoft.AntPatterns.pas",
           "flatten": true,
-          "dest": "src"
+          "dest": "source"
+        },
+        {
+          "src": "packages\\Rad Studio $compilerWithCodeName$\\*.dpk",
+          "dest": "packages\\Rad Studio $compilerWithCodeName$"
+        },
+        {
+          "src": "packages\\Rad Studio $compilerWithCodeName$\\*.dproj",
+          "dest": "packages\\Rad Studio $compilerWithCodeName$"
         }
       ],
       "searchPaths": [
         {
-          "path": "src"
+          "path": "source"
+        }
+      ],
+      "build": [
+        {
+          "id": "Runtime",
+          "project": ".\\packages\\Rad Studio $compilerWithCodeName$\\VSoft.AntPatternsR.dproj"
         }
       ]
     }
