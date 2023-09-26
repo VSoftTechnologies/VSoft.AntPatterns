@@ -137,9 +137,9 @@ var
 
 function IsRooted(const path: string): boolean;
 begin
-  result := TPath.IsPathRooted(path);
+//  result := TPath.IsPathRooted(path); //fails with wildcards
 
-//  result := TRegEx.IsMatch(path, '^[a-zA-z]\:\\|\\\\');
+  result := TRegEx.IsMatch(path, '^[a-zA-z]\:\\|\\\\');
 end;
 
   
