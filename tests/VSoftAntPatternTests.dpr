@@ -1,4 +1,5 @@
 program VSoftAntPatternTests;
+{$UNDEF TESTINSIGHT}
 
 {$IFNDEF TESTINSIGHT}
 {$APPTYPE CONSOLE}
@@ -30,6 +31,8 @@ begin
   TestInsight.DUnitX.RunRegisteredTests;
 {$ELSE}
   try
+    TDUnitX.Options.ExitBehavior := TDUnitXExitBehavior.Pause;
+
     //Check command line options, will exit if invalid
     TDUnitX.CheckCommandLine;
     //Create the test runner
@@ -51,6 +54,7 @@ begin
       System.ExitCode := EXIT_ERRORS;
 
     {$IFNDEF CI}
+
     //We don't want this happening when running under CI.
     if TDUnitX.Options.ExitBehavior = TDUnitXExitBehavior.Pause then
     begin

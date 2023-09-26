@@ -48,7 +48,6 @@ type
     FRootDirectory : string;
 
   protected
-    function IsRooted(const path : string) : boolean;
     function Combine(const root : string; pattern : string) : string;
 
     function NormalizeDirectorySeparators(const path : string) : string;
@@ -94,7 +93,7 @@ uses
   System.RegularExpressions;
 var
   antPatternRegexCache : TDictionary<string,string>;
-  
+
   //lazy create thread safe
   function InitCache: TDictionary<string,string>;
   var
@@ -135,6 +134,13 @@ var
       exit;
     antPatternRegexCache.TryGetValue(antPattern, result);
   end;
+
+function IsRooted(const path: string): boolean;
+begin
+  result := TPath.IsPathRooted(path);
+
+//  result := TRegEx.IsMatch(path, '^[a-zA-z]\:\\|\\\\');
+end;
 
   
   
@@ -439,12 +445,6 @@ begin
 
 end;
 
-
-function TAntPattern.IsRooted(const path: string): boolean;
-begin
-  result := TRegEx.IsMatch(path, '^[a-zA-z]\:\\|\\\\');
-end;
-
 function TAntPattern.NormalizeDirectorySeparators(const path: string): string;
 begin
   //TODO : Check PathDelim for all platforms;
@@ -497,7 +497,7 @@ var
   segment : string;
   
 begin
-  if not TPath.IsPathRooted(path) then
+  if not IsRooted(path) then
     path := IncludeTrailingPathDelimiter(basePath) + path
   else if not StartsWith(path, basePath) then
     exit(path); //should probably except ?
