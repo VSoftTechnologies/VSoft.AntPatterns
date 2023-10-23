@@ -54,7 +54,7 @@
         <VerInfo_Locale>3081</VerInfo_Locale>
         <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DllSuffix>270</DllSuffix>
+        <DllSuffix>$(Auto)</DllSuffix>
         <GenPackage>true</GenPackage>
         <GenDll>true</GenDll>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>

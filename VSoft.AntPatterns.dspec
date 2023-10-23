@@ -1,7 +1,7 @@
 {
   "metadata": {
     "id": "VSoft.AntPatterns",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "description": "AntPatterns to file mask library",
     "authors": "Vincent Parrett",
     "projectUrl": "https://github.com/VSoftTechnologies/VSoft.AntPatterns",
