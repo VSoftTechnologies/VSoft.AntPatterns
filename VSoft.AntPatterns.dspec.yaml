@@ -1,0 +1,53 @@
+# DPM package spec file
+# Used to build packages
+
+min client version: 1.0
+# metadata describes the package to the user
+metadata:
+  id: VSoft.AntPatterns
+  authors: [ Vincent Parrett ]
+  description: AntPatterns to file mask library
+  projectUrl: https://github.com/VSoftTechnologies/VSoft.AntPatterns
+  repositoryUrl: https://github.com/VSoftTechnologies/VSoft.AntPatterns
+  license: Apache-2.0
+  readme: README.md
+  copyright: Vincent Parrett and contributors
+  tags: [ ant, patterns ]
+  version: 0.1.9
+  repositoryCommit: Id:d9defef072db3617d093f151474400e59134f4fd
+
+# define variable defaults - can be overriden in targetPlatforms
+variables:
+  packageSource: "Rad Studio $compilernoprefix$"
+
+targetPlatforms:
+  - compiler from: delphixe2
+    compiler to: delphixe8
+    platforms: [ win32, win64 ]
+  - compiler from: delphi10.0
+    compiler to: delphi10.4
+    platforms: [ win32, win64 ]
+    variables:
+      packageSource: "Rad Studio $compilernoprefix$ $compilerCodeName$"
+  - compilers: [ delphi11 ]
+    platforms: [ win32, win64 ]
+    variables:
+      packageSource: "Rad Studio $compilernoprefix$.0 $compilerCodeName$"
+  - compiler from: delphi12
+    compiler to: delphi13
+    platforms: [ win32, win64 ]
+    variables:
+      packageSource: "Rad Studio $compilernoprefix$.0"
+
+templates:
+  - name: default
+
+    source:
+      - src: ./LICENSE.txt
+      - src: ./source/*.pas
+      - src: ./packages/$packageSource$/*.dpk
+        dest: ./packages/$packageSource$
+      - src: ./packages/$packageSource$/*.dproj
+        dest: ./packages/$packageSource$
+    build:
+      - project: ./packages/$packageSource$/VSoft.AntPatternsR.dproj
