@@ -14,7 +14,7 @@ metadata:
   copyright: Vincent Parrett and contributors
   tags: [ ant, patterns ]
   version: 0.1.9
-  repositoryCommit: Id:d9defef072db3617d093f151474400e59134f4fd
+  repositoryCommit: #HASH#
 
 # define variable defaults - can be overriden in targetPlatforms
 variables:
